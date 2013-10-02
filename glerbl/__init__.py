@@ -86,7 +86,9 @@ def tree_from_staged():
         if dirname != "" and not os.path.exists(dirname):
             os.makedirs(dirname)
 
-        os.link(path, dest)
+        # Don't try to link to files that don't exist anymore.
+        if os.path.exists(path):
+            os.link(path, dest)
 
     # Modify the tree according to what is staged.
     for line in subprocess.check_output(["git", "diff-index", "--cached",

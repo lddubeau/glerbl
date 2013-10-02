@@ -1,0 +1,6 @@
+[REPORTS]
+include-ids=y
+
+[VARIABLES]
+# These are imported from freshen.checks
+additional-builtins=assert_true,assert_false

@@ -43,6 +43,9 @@ def start_glerbl(args):
     return (ret, os.fdopen(stdin_w, 'w'), os.fdopen(stdout_r, 'r'),
             os.fdopen(stderr_r, 'r'))
 
+def git(repo, *args):
+    subprocess.check_call(args, cwd=repo)
+
 @contextlib.contextmanager
 def chdir(to):
     pwd = os.getcwd()
@@ -72,9 +75,9 @@ def non_git():
     scc.repo = tempfile.mkdtemp(dir="features")
 
 @Given("^a git repository$")
-def git():
+def git_step():
     scc.repo = tempfile.mkdtemp(dir="features")
-    subprocess.check_call(["git", "init", "-q"], cwd=scc.repo)
+    git(scc.repo, "git", "init", "-q")
 
 @Given("^a configuration that does not have the checks variable$")
 def config_without_checks():
@@ -112,7 +115,7 @@ def a_staged_file():
     foo = os.path.join(scc.repo, "foo")
     with open(foo, 'w'):
         pass
-    subprocess.check_call(["git", "add", "foo"], cwd=scc.repo)
+    git(scc.repo, "git", "add", "foo")
 
 @Given(r"^a git repository in which (\w+?) is to be run$")
 def git_repo_in_with_x(check):
@@ -167,35 +170,59 @@ def x_exists(x):
 def non_ascii_exists():
     with open(os.path.join(scc.repo, u"ālaya"), 'w'):
         pass
-    subprocess.check_call(["git", "add", u"ālaya"], cwd=scc.repo)
+    git(scc.repo, "git", "add", u"ālaya")
 
 @Given("^a file with trailing whitespace is staged$")
 def file_with_trailing_whitespace_staged():
     with open(os.path.join(scc.repo, u"foo"), 'w') as foo:
         foo.write("a = 'blah'  ")
-    subprocess.check_call(["git", "add", u"foo"], cwd=scc.repo)
+    git(scc.repo, "git", "add", u"foo")
 
 @Given("^a python file with a trailing semicolon is staged$")
 def python_file_with_trailing_semicolon_staged():
     with open(os.path.join(scc.repo, u"foo.py"), 'w') as foo:
         foo.write("a = 'blah';")
-    subprocess.check_call(["git", "add", u"foo.py"], cwd=scc.repo)
+    git(scc.repo, "git", "add", u"foo.py")
 
 @Given("^a python file that violates PEP8 is staged$")
 def python_file_that_violates_pep8_staged():
     with open(os.path.join(scc.repo, u"foo.py"), 'w') as foo:
         foo.write("a='blah'")
-    subprocess.check_call(["git", "add", u"foo.py"], cwd=scc.repo)
+    git(scc.repo, "git", "add", u"foo.py")
 
 
 @Given("^hooks.allownonascii is true$")
 def hooks_allownonascii_true():
-    subprocess.check_call(["git", "config", "hooks.allownonascii", "true"],
-                          cwd=scc.repo)
+    git(scc.repo, "git", "config", "hooks.allownonascii", "true")
 
 @Given(r"^environment variable (\w+) is set$")
 def environment_variable_x_is_set(x):
     os.environ[x]="1"
+
+
+@Given(r"^a staged deleted file which would normally be checked and "
+       r"has no errors$")
+def staged_deleted_file():
+    my_path = os.path.join(scc.repo, u"staged_deleted.py")
+    assert_false(os.path.exists(my_path), my_path + " must not exist")
+    with open(my_path, 'w'):
+        pass
+    git(scc.repo, "git", "add", os.path.relpath(my_path, scc.repo))
+    git(scc.repo, "git", "commit", "-q", "-m", "blah")
+    git(scc.repo, "git", "rm", "-q",  os.path.relpath(my_path, scc.repo))
+
+
+@Given(r"^an unstaged deleted file which would normally be checked and "
+       r"has no errors$")
+def unstaged_deleted_file():
+    my_path = os.path.join(scc.repo, u"unstaged_deleted.py")
+    assert_false(os.path.exists(my_path), my_path + " must not exist")
+    with open(my_path, 'w'):
+        pass
+    git(scc.repo, "git", "add", os.path.relpath(my_path, scc.repo))
+    git(scc.repo, "git", "commit", "-q", "-m", "blah")
+    os.unlink(my_path)
+
 
 @When("^the user installs glerbl$")
 def user_installs_glerbl():
@@ -213,11 +240,17 @@ def user_answers_affirmatively():
 
 @When("^the user commits$")
 def the_user_commits():
+    # We need to have something to commit
+    insurance = os.path.join(scc.repo, "insurance")
+    assert_false(os.path.exists(insurance), insurance + " must not exist")
+    with open(insurance, 'w'):
+        pass
+    git(scc.repo, "git", "add", os.path.relpath(insurance, scc.repo))
     proc = subprocess.Popen(["git", "commit", "-m", "foo"],
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE, cwd=scc.repo)
     (scc.git_stdout, scc.git_stderr) = proc.communicate()
-    scc.git_returncode = proc.returncode
+    scc.git_returncode = proc.returncode # pylint: disable=E1101
 
 @Then("^glerbl prompts the user$")
 def glerbl_prompts_the_user():
