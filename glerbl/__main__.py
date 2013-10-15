@@ -27,7 +27,7 @@ def __load_config_file(path):
     if not os.path.exists(path):
         raise NonExistentConfig(path)
 
-    glob = {}
+    glob = {"__file__": path}
     execfile(path, glob)
     return glob
 
