@@ -70,7 +70,7 @@ def __verify_checks_for_hook(checks, hook):
 
 def _runhook(which):
     config = __load_config()
-    checks = __load_checks(config["checks"][which])
+    checks = __load_checks(config["checks"].get(which, []))
     __verify_checks_for_hook(checks, which)
 
     failed = False

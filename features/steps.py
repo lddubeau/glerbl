@@ -117,13 +117,16 @@ def a_staged_file():
         pass
     git(scc.repo, "git", "add", "foo")
 
-@Given(r"^a git repository in which (\w+?) is to be run$")
+@Given(r"^a git repository in which (\w+ is|no checks are) to be run$")
 def git_repo_in_with_x(check):
     run_steps("Given a git repository")
     os.mkdir(os.path.join(scc.repo, ".glerbl"))
     with open(os.path.join(scc.repo, ".glerbl", "repo_conf.py"), 'w') as \
          conf:
-        conf.write("checks = {{'pre-commit': ['{0}']}}\n".format(check))
+        conf.write("checks = {{{0}}}\n"
+                   .format("" if check == "no checks are"
+                           else ("'pre-commit': ['{0}']".format(check[0:-3]))))
+
     run_steps("""
     When the user installs glerbl
     And answers affirmatively the install prompt
@@ -136,7 +139,15 @@ def git_repo_in_with_x(check):
     del scc.stderr
     del scc.stdout
 
-@Given(r"^a git repository in which all pre-commit hooks are to be run$")
+
+@When(r"^the user removes all checks$")
+def user_removes_all_checks():
+    with open(os.path.join(scc.repo, ".glerbl", "repo_conf.py"), 'w') as \
+         conf:
+        conf.write("checks = {}\n")
+
+
+@Given(r"^a git repository in which all pre-commit checks are to be run$")
 def git_repo_in_with_all_pre_commit():
     run_steps("Given a git repository")
     checks = []
