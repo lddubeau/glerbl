@@ -33,7 +33,7 @@ setup(
     url="https://github.com/lddubeau/glerbl",
     setup_requires=[
         'nose>=1.3.0',
-        'freshen>=0.2',
+        'fresher>=0.3.0',
     ],
     #use_2to3=True,
     classifiers=[

@@ -10,8 +10,8 @@ import multiprocessing
 import fcntl
 import time
 
-from freshen import * # pylint: disable=W0401,W0614
-from freshen.checks import * # pylint: disable=W0401,W0614
+from fresher import * # pylint: disable=W0401,W0614
+from fresher.checks import * # pylint: disable=W0401,W0614
 
 def set_nonblocking(fd):
     flags = fcntl.fcntl(fd, fcntl.F_GETFL)
@@ -300,13 +300,14 @@ def glerbl_installs_the_hooks():
 def commit_fails_with(value):
     assert_equal(scc.git_returncode, 1)
     assert_equal(scc.git_stderr.decode('utf-8'),
-                 value.strip().decode('string_escape').decode('utf-8'))
+                 value.strip().encode('utf-8').decode('string_escape').
+                 decode('utf-8'))
 
 @Then('^the commit fails with trailing "(.*?)"$')
 def commit_fails_with_trailing(value):
     assert_equal(scc.git_returncode, 1)
     assert_true(scc.git_stderr.decode('utf-8').endswith(
-        value.strip().decode('string_escape').decode('utf-8')))
+        value.strip().encode('utf-8').decode('string_escape').decode('utf-8')))
 
 
 @Then('^the commit is successful$')
