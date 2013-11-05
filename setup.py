@@ -31,7 +31,7 @@ setup(
     license="GPLv3+",
     keywords=["git", "git hooks"],
     url="https://github.com/lddubeau/glerbl",
-    setup_requires=[
+    install_requires=[
         'nose>=1.3.0',
         'fresher>=0.3.0',
         'six'
