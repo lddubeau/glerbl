@@ -4,6 +4,7 @@ import importlib
 import pkgutil
 import stat
 import os
+from six.moves import input
 
 GLERBL_DIR=".glerbl"
 prog = None
@@ -28,7 +29,7 @@ def __load_config_file(path):
         raise NonExistentConfig(path)
 
     glob = {"__file__": path}
-    execfile(path, glob)
+    exec(compile(open(path).read(), path, 'exec'), glob)
     return glob
 
 def __load_config():
@@ -103,8 +104,8 @@ def _install(_):
         # Also verify that they apply to the hooks.
         __verify_checks_for_hook(checks, hook)
 
-    reply = raw_input("This will overwrite your current hooks. "
-                      "Proceed [yes/No]? ")
+    reply = input("This will overwrite your current hooks. "
+                  "Proceed [yes/No]? ")
     if reply != "yes":
         raise Exit(0)
 
@@ -141,8 +142,8 @@ def _listchecks(_):
     package = glerbl.check
     for _, modname, _ in pkgutil.walk_packages(path=package.__path__):
         mod = importlib.import_module(package.__name__+ '.' + modname)
-        print modname, mod.Check.hooks
-        print mod.Check.__doc__
+        print(modname, mod.Check.hooks)
+        print(mod.Check.__doc__)
 
 def main(args=None):
     try:

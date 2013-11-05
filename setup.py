@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 long_description = ""
 found = False
-with file("README.rst", 'r') as readme:
+with open("README.rst", 'r') as readme:
     captured = []
     for line in readme:
         if line == \
@@ -34,6 +34,7 @@ setup(
     setup_requires=[
         'nose>=1.3.0',
         'fresher>=0.3.0',
+        'six'
     ],
     #use_2to3=True,
     classifiers=[
