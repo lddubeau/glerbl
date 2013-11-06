@@ -8,14 +8,16 @@ from glerbl.__main__ import main
 import subprocess
 import multiprocessing
 import fcntl
-import time
+import six
 
 from fresher import * # pylint: disable=W0401,W0614
 from fresher.checks import * # pylint: disable=W0401,W0614
 
-def set_nonblocking(fd):
-    flags = fcntl.fcntl(fd, fcntl.F_GETFL)
-    fcntl.fcntl(fd, fcntl.F_SETFL, flags | os.O_NONBLOCK)
+def decode(string):
+    if not six.PY3:
+        return string.decode('utf-8')
+    else:
+        return string if isinstance(string, str) else string.decode('utf-8')
 
 def glerbl_func(args, stdin, stdout, stderr):
     sys.stdin = os.fdopen(stdin, 'r')
@@ -38,8 +40,6 @@ def start_glerbl(args):
     os.close(stdin_r)
     os.close(stdout_w)
     os.close(stderr_w)
-    set_nonblocking(stdout_r)
-    set_nonblocking(stderr_r)
     return (ret, os.fdopen(stdin_w, 'w'), os.fdopen(stdout_r, 'r'),
             os.fdopen(stderr_r, 'r'))
 
@@ -267,21 +267,15 @@ def the_user_commits():
 def glerbl_prompts_the_user():
     scc.stdin.write("N\n")
     scc.stdin.flush()
-    done = False
-    while not done:
-        try:
-            assert_equal(
-                scc.stdout.read().strip(),
-                "This will overwrite your current hooks. Proceed [yes/No]?")
-            done = True
-        except IOError:
-            time.sleep(0.5)
+    assert_equal(
+        decode(scc.stdout.read().strip()),
+        "This will overwrite your current hooks. Proceed [yes/No]?")
 
 @Then('^glerbl fails with "(.*?)"$')
 def glerbl_fails_with(value):
     scc.proc.join()
-    assert_equal(scc.stderr.read().strip(),
-                 value.strip().decode('string_escape'))
+    assert_equal(decode(scc.stderr.read().strip()),
+                 value.strip().replace(r'\n', '\n'))
     assert_equal(scc.proc.exitcode, 1)
 
 @Then("^glerbl installs the hooks$")
@@ -296,20 +290,19 @@ def glerbl_installs_the_hooks():
     assert_equal(scc.proc.exitcode, 0)
     commit_hook.close()
 
-@Then('^the commit fails with "(.*?)"$')
+@Then(u'^the commit fails with "(.*?)"$')
 def commit_fails_with(value):
     assert_equal(scc.git_returncode, 1)
-    assert_equal(scc.git_stderr.decode('utf-8'),
-                 value.strip().encode('utf-8').decode('string_escape').
-                 decode('utf-8'))
+    assert_equal(decode(scc.git_stderr),
+                 value.strip().replace(r'\n', '\n'))
 
-@Then('^the commit fails with trailing "(.*?)"$')
+@Then(u'^the commit fails with trailing "(.*?)"$')
 def commit_fails_with_trailing(value):
     assert_equal(scc.git_returncode, 1)
-    assert_true(scc.git_stderr.decode('utf-8').endswith(
-        value.strip().encode('utf-8').decode('string_escape').decode('utf-8')))
+    assert_true(decode(scc.git_stderr).endswith(
+        value.strip().replace(r'\n', '\n')))
 
 
 @Then('^the commit is successful$')
 def commit_successful():
-    assert_equal(scc.git_returncode, 0)
+    assert_equal(scc.git_returncode, 0, scc.git_stderr)

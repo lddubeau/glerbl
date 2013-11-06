@@ -2,13 +2,14 @@ import glerbl
 import subprocess
 import sys
 import re
+import six
 from . import CheckBase
 
 allownonascii = False
 try:
     allownonascii = (subprocess.check_output(["git", "config",
                                               "hooks.allownonascii"])
-                     .strip() == "true")
+                     .strip() == b"true")
 except subprocess.CalledProcessError:
     pass
 
@@ -30,7 +31,7 @@ class Check(CheckBase):
             ["git", "diff", "--cached", "--name-only",
              "--diff-filter=A", "-z", against])
 
-        names = output.split("\x00")
+        names = (output if not six.PY3 else output.decode("utf-8")).split("\x00")
         good = True
         for name in [x for x in names if non_ascii_re.search(x) is not None]:
             sys.stderr.write("{0} is a non-ascii file name.".format(name))
