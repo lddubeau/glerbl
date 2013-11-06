@@ -34,7 +34,7 @@ class Check(CheckBase):
         names = (output if not six.PY3 else output.decode("utf-8")).split("\x00")
         good = True
         for name in [x for x in names if non_ascii_re.search(x) is not None]:
-            sys.stderr.write("{0} is a non-ascii file name.".format(name))
+            sys.stderr.write("{0} is a non-ascii filename.\n".format(name))
             good = False
 
         return good
