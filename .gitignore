@@ -1,4 +1,5 @@
 *.pyc
-glerbl.egg-info
-build
-dist
+/glerbl.egg-info
+/build
+/dist
+/.tox
