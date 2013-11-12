@@ -20,6 +20,12 @@ Scenario: deleted file unstaged, commit successful
   When the user commits
   Then the commit is successful
 
+Scenario: file staged to be deleted only in the cache, commit successful
+  Given a git repository in which all pre-commit checks are to be run
+  And a file staged to be deleted only in the cache, and which would normally be checked and has no errors
+  When the user commits
+  Then the commit is successful
+
 Scenario: no checks to run, commit successful
   Given a git repository in which all pre-commit checks are to be run
   And a staged file

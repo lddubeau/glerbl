@@ -100,21 +100,19 @@ def tree_from_staged():
 
         (_, _, _, sha, status, filename) = line.split()
 
-        # We test for existence first because there is no guarantee
-        # regarding the order of the files reported by diff-index. A
-        # rmtree could delete files still to be seen in our loop.
-        if os.path.exists(filename):
-            if os.path.isdir(filename):
-                shutil.rmtree(os.path.join(tmpdir, filename))
+        dest = os.path.join(tmpdir, filename)
+        if os.path.exists(dest):
+            if os.path.isdir(dest):
+                shutil.rmtree(dest)
             else:
-                os.unlink(os.path.join(tmpdir, filename))
+                os.unlink(dest)
 
         # Deleted file, we're done.
         if status == "D":
             continue
 
         subprocess.check_call(["git", "cat-file", "-p", sha],
-                              stdout=open(os.path.join(tmpdir, filename), 'w'))
+                              stdout=open(dest, 'w'))
 
     __cached_tree_from_staged = tmpdir
     return tmpdir

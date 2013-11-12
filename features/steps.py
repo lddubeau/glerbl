@@ -235,6 +235,19 @@ def unstaged_deleted_file():
     os.unlink(my_path)
 
 
+@Given(r"^a file staged to be deleted only in the cache, and which would "
+       r"normally be checked and has no errors$")
+def staged_deleted_file_from_cache():
+    my_path = os.path.join(scc.repo, u"staged_deleted.py")
+    assert_false(os.path.exists(my_path), my_path + " must not exist")
+    with open(my_path, 'w'):
+        pass
+    git(scc.repo, "git", "add", os.path.relpath(my_path, scc.repo))
+    git(scc.repo, "git", "commit", "-q", "-m", "blah")
+    git(scc.repo, "git", "rm", "--cached", "-q",
+        os.path.relpath(my_path, scc.repo))
+
+
 @When("^the user installs glerbl$")
 def user_installs_glerbl():
     with chdir(scc.repo):
