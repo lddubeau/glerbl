@@ -18,7 +18,7 @@ if not found:
 
 setup(
     name="glerbl",
-    version="0.0.4",
+    version="0.1.0",
     packages=find_packages(),
     entry_points={
         'console_scripts': [
@@ -33,13 +33,13 @@ setup(
     url="https://github.com/lddubeau/glerbl",
     install_requires=[
         'nose>=1.3.0',
-        'fresher>=0.3.0',
+        'fresher>=0.3.1',
         'six'
     ],
     #use_2to3=True,
     classifiers=[
-        "Programming Language :: Python",
-        #"Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
         "Development Status :: 4 - Beta",
         "Environment :: Console",
         "Intended Audience :: Developers",
