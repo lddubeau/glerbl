@@ -10,6 +10,8 @@ class Check(CheckBase):
     semicolon. Pylint is used for this check. So if you run a more
     comprehensive pylint check, you might want to skip this check and
     have your other check include the semicolon check.
+
+    Running a check with pep8 would also make this check superfluous.
     """
     hooks = ["pre-commit"]
 
@@ -34,7 +36,8 @@ class Check(CheckBase):
                 continue
 
             stdout = open(os.devnull, 'w')
-            lint_st = subprocess.call(["pylint", "--disable=E,C,W,R",
+            lint_st = subprocess.call(["pylint", "--rcfile=/dev/null",
+                                       "--disable=E,C,W,R",
                                        "--enable=W0301",
                                        os.path.join(tmpdir, filename)],
                                       stdout=stdout)
