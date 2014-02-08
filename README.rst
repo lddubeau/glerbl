@@ -190,7 +190,7 @@ FAQ
     Since github allows you to install hooks to get notification of
     events like pull requests, this could conceivably be automated.
 
-All of glerbl's code and documentation is Copyright 2013
+All of glerbl's code and documentation is Copyright 2013, 2014
 Louis-Dominique Dubeau.
 
 ..  LocalWords:  Glerbl github ascii glerbl py's pre repo py glerbl's
