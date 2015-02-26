@@ -241,7 +241,7 @@ def staged_deleted_file():
         pass
     git(scc.repo, "git", "add", os.path.relpath(my_path, scc.repo))
     git(scc.repo, "git", "commit", "-q", "-m", "blah")
-    git(scc.repo, "git", "rm", "-q",  os.path.relpath(my_path, scc.repo))
+    git(scc.repo, "git", "rm", "-q", os.path.relpath(my_path, scc.repo))
 
 
 @Given(r"^an unstaged deleted file which would normally be checked and "
