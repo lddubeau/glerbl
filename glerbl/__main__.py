@@ -46,14 +46,26 @@ def __load_config():
             fatal("cannot load {0} or {1}.".format(local_conf, repo_conf))
     return config
 
-def __load_checks(check_names):
+class CheckInfo(object):
+    def __init__(self, name, module, params):
+        self.name = name
+        self.module = module
+        self.params = params
+
+def __load_checks(config_checks):
     checks = []
-    for check_name in check_names:
+    for check in config_checks:
+        check_name = check["name"] if isinstance(check, dict) else check
+
         mod_name = "glerbl.check." + check_name \
                       if check_name.find(".") == -1 else check_name
 
         try:
-            checks.append(importlib.import_module(mod_name))
+            checks.append(CheckInfo(
+                check_name,
+                importlib.import_module(mod_name),
+                check["params"] if isinstance(check, dict) else {}
+            ))
         except ImportError:
             fatal("cannot import the module for check name {0}."
                   .format(check_name))
@@ -62,10 +74,10 @@ def __load_checks(check_names):
 def __verify_checks_for_hook(checks, hook):
     err = False
     for check in checks:
-        if hook not in check.Check.hooks:
+        if hook not in check.module.Check.hooks:
             err = True
             error("{0} not among those hooks supported by {1}."
-                  .format(hook, check.__name__))
+                  .format(hook, check.module.__name__))
     if err:
         fatal("invalid configuration.")
 
@@ -76,9 +88,9 @@ def _runhook(which):
 
     failed = False
     for check in checks:
-        check_obj = check.Check()
+        check_obj = check.module.Check(**check.params)
         if not check_obj.execute(which):
-            error(check.__name__ + " failed.")
+            error(check.module.__name__ + " failed.")
             failed = True
 
     if failed:
