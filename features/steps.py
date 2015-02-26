@@ -337,6 +337,12 @@ def commit_fails_with(value):
                  value.strip().replace(r'\n', '\n'))
 
 
+@Then(u'^the commit fails matching "(.*?)"$')
+def commit_fails_matching(value):
+    assert_equal(scc.git_returncode, 1)
+    assert_regexp_matches(decode(scc.git_stderr), value.strip())
+
+
 @Then(u'^the commit fails with trailing "(.*?)"$')
 def commit_fails_with_trailing(value):
     assert_equal(scc.git_returncode, 1)

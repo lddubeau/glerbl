@@ -13,8 +13,15 @@ class Check(CheckBase):
 
     hooks = ["pre-commit"]
 
+    def __init__(self, verbose=False, **kwargs):
+        self.verbose = verbose
+        super(Check, self).__init__(**kwargs)
+
     def execute(self, hook):
         against = glerbl.get_against()
+        tmpdir = None
+        if self.verbose:
+            tmpdir = glerbl.tree_from_staged()
 
         fail = False
 
@@ -33,8 +40,13 @@ class Check(CheckBase):
             if ext != ".py" or status == "D":
                 continue
 
-            pep_ret = os.system(("git cat-file -p {0} | "
-                                "pep8 /dev/stdin > /dev/null").format(sha))
+            if self.verbose:
+                cmd = "pep8 " + os.path.join(tmpdir, filename)
+            else:
+                cmd = ("git cat-file -p {0} | pep8 /dev/stdin > /dev/null") \
+                    .format(sha)
+
+            pep_ret = os.system(cmd)
             if pep_ret != 0:
                 sys.stderr.write(filename + " does not comply with pep8.\n")
                 fail = True
