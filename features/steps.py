@@ -62,8 +62,11 @@ def chdir(to):
 @contextlib.contextmanager
 def temp_dir():
     tmpdir = tempfile.mkdtemp(dir="features")
-    yield tmpdir
-    shutil.rmtree(tmpdir)
+    try:
+        yield tmpdir
+    finally:
+        shutil.rmtree(tmpdir)
+
 
 @contextlib.contextmanager
 def temp_chdir():
