@@ -228,7 +228,7 @@ def file_with_trailing_whitespace_staged():
 @Given("^a python file with a trailing semicolon is staged$")
 def python_file_with_trailing_semicolon_staged():
     with open(os.path.join(scc.repo, u"foo.py"), 'w') as foo:
-        foo.write("a = 'blah';")
+        foo.write("a = 'blah';\n")
     git(scc.repo, "git", "add", u"foo.py")
 
 
