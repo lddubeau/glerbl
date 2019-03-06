@@ -140,15 +140,24 @@ def a_staged_file():
         pass
     git(scc.repo, "git", "add", "foo")
 
-@Given(r"^a git repository in which (\w+ is|no checks are) to be run$")
+
+@Given(r"^a git repository in which ((?:\w+|\{.*\}) is|no checks are) to be run$")
 def git_repo_in_with_x(check):
     run_steps("Given a git repository")
     os.mkdir(os.path.join(scc.repo, ".glerbl"))
+
+    if check == "no checks are":
+        pass
+    else:
+        check = check[0:-3]
+        if check[0] != "{":
+            check = "'" + check + "'"
+
     with open(os.path.join(scc.repo, ".glerbl", "repo_conf.py"), 'w') as \
             conf:
         conf.write("checks = {{{0}}}\n"
                    .format("" if check == "no checks are"
-                           else ("'pre-commit': ['{0}']".format(check[0:-3]))))
+                           else ("'pre-commit': [{0}]".format(check))))
 
     run_steps("""
     When the user installs glerbl
