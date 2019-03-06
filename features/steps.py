@@ -50,6 +50,11 @@ def start_glerbl(args):
 def git(repo, *args):
     subprocess.check_call(args, cwd=repo)
 
+# We need to alter PYTHONPATH to be able to let the hooks launched by git run
+# python -m glerbl... and load the **DEVELOPMENT** version of glerbl.
+project_dir = os.path.dirname(os.path.dirname(__file__))
+os.environ["PYTHONPATH"] = "{}:{}".format(
+    project_dir, os.environ.get("PYTHONPATH", ""))
 
 @contextlib.contextmanager
 def chdir(to):
