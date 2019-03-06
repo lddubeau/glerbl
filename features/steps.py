@@ -164,7 +164,7 @@ def git_repo_in_with_x(check):
     And answers affirmatively the install prompt
     """)
     scc.proc.join()
-    assert_equal(scc.proc.exitcode, 0)
+    assert_equal(scc.proc.exitcode, 0, "exit code should be 0")
     # These have become useless
     del scc.proc
     del scc.stdin
