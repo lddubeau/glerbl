@@ -32,11 +32,13 @@ setup(
     keywords=["git", "git hooks"],
     url="https://github.com/lddubeau/glerbl",
     install_requires=[
-        'nose>=1.3.0',
-        'fresher>=0.3.1',
         'six'
     ],
-    #use_2to3=True,
+    tests_require=[
+        'nose>=1.3.0',
+        'fresher>=0.3.1',
+    ],
+    # use_2to3=True,
     classifiers=[
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
