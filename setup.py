@@ -36,7 +36,7 @@ setup(
     ],
     tests_require=[
         'nose>=1.3.0',
-        'fresher>=0.3.1',
+        'fresher>=0.4.2',
     ],
     # use_2to3=True,
     classifiers=[
